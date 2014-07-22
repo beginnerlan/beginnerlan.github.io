@@ -5,3 +5,28 @@ date: 2014-07-16 07:59:18 -0700
 comments: true
 categories: 
 ---
+
+因为使用代理的关系，我在.ssh/config加了    
+
+```sh
+ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p
+```
+
+然后发现不能使用stop-slaves.sh停掉spark的worker节点，ssh xilan@hostname出现     
+
+```sh
+ssh_exchange_identification: Connection closed by remote host
+```
+错误，在stackoverflow上发现[这个](http://stackoverflow.com/questions/10610503/disable-corkscrew-for-local-addresses)方案。
+
+给Hadoop集群加一台DataNode：   
+1、将NameNode节点的id_dsa.pub中的内容拷贝到~/.ssh/authorized_keys文件中，让NameNode可以不用密码登陆到该节点    
+2、编辑$HADOOP_HOME/etc/hadoop/slaves文件，将该节点的hostname添加到末尾   
+3、更新所有DataNode上的slaves文件（scp）   
+4、scp -r hadoop xilan@newnode:/home/xilan/ 讲Hadoop拷贝到该节点   
+5、当然在启动之前我还安装好JDK，也把NameNode的.bashrc拷贝过来用    
+6、sbin/hadoop-daemon.sh start datanode启动DataNode
+7、sbin/yarn-daemon.sh start nodemanager启动NodeManager
+8、再用jps就看到相应的进程已经启动了    
+
+Hadoop弄好以后其实Spark也可以类似这样加一个Worker节点（Spark我是自己编译的，太多文件，我可能应该先打个包）。

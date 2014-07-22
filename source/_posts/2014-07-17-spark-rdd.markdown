@@ -1,0 +1,28 @@
+---
+layout: post
+title: "Spark RDD"
+date: 2014-07-17 05:58:41 -0700
+comments: true
+categories: 
+---
+
+[Apache Spark](http://spark.apache.org/)是UC Berkeley的AMPLab发起的一个开源项目，现在那些人成立了[DATABRICKS](https://databricks.com/)，提供各种大数据解决方案。Spark现在真是火得不得了，全世界已经有超过200个代码提交者。这里并不打算全面介绍Spark。主要想介绍Spark最核心的东西：RDD（Resilient Distributed Dataset，弹性分布数据集）。    
+
+> RDD是什么呢？
+
+```scala
+val readmeRDD = sc.textFile("README.md")
+val wiki = sc.textFile("hdfs://hostname:9000/user/xilan/wiki")
+14/07/17 06:43:18 INFO storage.MemoryStore: ensureFreeSpace(218483) called with curMem=436894, maxMem=309225062
+14/07/17 06:43:18 INFO storage.MemoryStore: Block broadcast_2 stored as values to memory (estimated size 213.4 KB, free 294.3 MB)
+wiki: org.apache.spark.rdd.RDD[String] = MappedRDD[5] at textFile at <console>:12
+
+wiki.count
+......
+14/07/17 06:51:28 INFO scheduler.TaskSchedulerImpl: Removed TaskSet 1.0, whose tasks have all completed, from pool
+14/07/17 06:51:28 INFO spark.SparkContext: Job finished: count at <console>:15, took 137.270363856 s
+res2: Long = 748891474
+
+wiki.take(3)
+res5: Array[String] = Array(<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.8/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.8/ http://www.mediawiki.org/xml/export-0.8.xsd" version="0.8" xml:lang="en">, "  <siteinfo>", "    <sitename>Wikipedia</sitename>")
+```
