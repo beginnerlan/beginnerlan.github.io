@@ -4,7 +4,7 @@
   <title><![CDATA[e^iπ + 1 = 0]]></title>
   <link href="http://beginnerlan.github.io/atom.xml" rel="self"/>
   <link href="http://beginnerlan.github.io/"/>
-  <updated>2014-07-17T01:14:59-07:00</updated>
+  <updated>2014-07-22T05:58:02-07:00</updated>
   <id>http://beginnerlan.github.io/</id>
   <author>
     <name><![CDATA[Xiaohe Lan]]></name>
@@ -14,11 +14,131 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Oralce NoSQL介绍]]></title>
+    <link href="http://beginnerlan.github.io/blog/2014/07/22/oralce-nosql-intro/"/>
+    <updated>2014-07-22T05:01:57-07:00</updated>
+    <id>http://beginnerlan.github.io/blog/2014/07/22/oralce-nosql-intro</id>
+    <content type="html"><![CDATA[<p>SQLDev从4.1开始加了几个特性，其中一个就是对Oracle NoSQL的支持，这种事情当然就会交给我去做。估计再过一两个月就开始测了，我需要开始了解Oracle NoSQL。其实，说到NoSQL我首先会想到Redis、MongoDB和HBase那些，Oracle NoSQL之前没听过。</p>
+
+<p>所有的分布式的东西估计都会提到高可靠性、高可用性和可扩展性，Oracle NoSQL当然也不能例外。数据已键值对的形式，通过哈希存储到各个节点（Storage Node），各个节点都会做备份来提供高可用性，默认是3份。这里我从单节点开始。</p>
+
+<p>从官网下载了企业版（kv-ee-3.0.9.tar.gz），直接在/home/xilan/用tar zxvf kv-ee-3.0.9.tar.gz解压得到kv-3.0.9文件夹。进入kv-3.0.9，该目录下有doc、examples、exttab、lib、LICENSE.txt和README.txt，前面四个是文件夹。</p>
+
+<p>为了快速了解，我启动KVLite（Oracle NoSQL的单节点，单shard，单进程store）：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>java -Xmx256m -Xms256m -jar lib/kvstore.jar kvlite
+</span><span class='line'>Created new kvlite store with args:
+</span><span class='line'>-root ./kvroot -store kvstore -host myhost -port 5000 -admin 5001
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>store参数指定store的名字，host指定主机名字（我这里其实是localhost），在当前目录生成kvroot目录（因为第一次启动，以前还没有），用来存放NoSQL数据，默认在5000端口上监听，管理进程在5001端口打开。</p>
+
+<p>还可以ping一下看看kvlite是否已经起来了：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>java -jar lib/kvstore ping -host localhost -port 5000
+</span><span class='line'>kvstore comprises 10 partitions and 1 Storage Nodes
+</span><span class='line'>Storage Node <span class="o">[</span>sn1<span class="o">]</span> on hostname:5000     Zone: <span class="o">[</span><span class="nv">name</span><span class="o">=</span>KVLite <span class="nv">id</span><span class="o">=</span>zn1 <span class="nb">type</span><span class="o">=</span>PRIMARY<span class="o">]</span>    Status: RUNNING   Ver: 12cR1.3.0.9 2014-05-02 11:52:34 UTC  Build id: c9e715456512
+</span><span class='line'>        Rep Node <span class="o">[</span>rg1-rn1<span class="o">]</span>      Status: RUNNING,MASTER at sequence number: 37 haPort: 5006
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来当然是准备HelloWorld了：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>bash-4.1<span class="nv">$ </span>javac -cp examples:lib/kvclient.jar examples/hello/HelloBigDataWorld.java
+</span><span class='line'>bash-4.1<span class="nv">$ </span>java -cp examples:lib/kvclient.jar hello.HelloBigDataWorld
+</span><span class='line'>Hello Big Data World!
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>好了，接下来可以开始看看examples下的例子，熟悉一下API，当然，最终还是要跑到几个节点上。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Spark RDD]]></title>
+    <link href="http://beginnerlan.github.io/blog/2014/07/17/spark-rdd/"/>
+    <updated>2014-07-17T05:58:41-07:00</updated>
+    <id>http://beginnerlan.github.io/blog/2014/07/17/spark-rdd</id>
+    <content type="html"><![CDATA[<p><a href="http://spark.apache.org/">Apache Spark</a>是UC Berkeley的AMPLab发起的一个开源项目，现在那些人成立了<a href="https://databricks.com/">DATABRICKS</a>，提供各种大数据解决方案。Spark现在真是火得不得了，全世界已经有超过200个代码提交者。这里并不打算全面介绍Spark。主要想介绍Spark最核心的东西：RDD（Resilient Distributed Dataset，弹性分布数据集）。</p>
+
+<blockquote><p>RDD是什么呢？</p></blockquote>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">readmeRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;README.md&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="k">val</span> <span class="n">wiki</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;hdfs://hostname:9000/user/xilan/wiki&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="mi">14</span><span class="o">/</span><span class="mi">07</span><span class="o">/</span><span class="mi">17</span> <span class="mi">06</span><span class="k">:</span><span class="err">43</span><span class="kt">:</span><span class="err">18</span> <span class="kt">INFO</span> <span class="kt">storage.MemoryStore:</span> <span class="kt">ensureFreeSpace</span><span class="o">(</span><span class="err">218483</span><span class="o">)</span> <span class="kt">called</span> <span class="kt">with</span> <span class="kt">curMem</span><span class="o">=</span><span class="mi">436894</span><span class="o">,</span> <span class="n">maxMem</span><span class="k">=</span><span class="mi">309225062</span>
+</span><span class='line'><span class="mi">14</span><span class="o">/</span><span class="mi">07</span><span class="o">/</span><span class="mi">17</span> <span class="mi">06</span><span class="k">:</span><span class="err">43</span><span class="kt">:</span><span class="err">18</span> <span class="kt">INFO</span> <span class="kt">storage.MemoryStore:</span> <span class="kt">Block</span> <span class="kt">broadcast_2</span> <span class="kt">stored</span> <span class="kt">as</span> <span class="kt">values</span> <span class="kt">to</span> <span class="kt">memory</span> <span class="o">(</span><span class="kt">estimated</span> <span class="kt">size</span> <span class="err">213</span><span class="kt">.</span><span class="err">4</span> <span class="kt">KB</span><span class="o">,</span> <span class="kt">free</span> <span class="err">294</span><span class="kt">.</span><span class="err">3</span> <span class="kt">MB</span><span class="o">)</span>
+</span><span class='line'><span class="n">wiki</span><span class="k">:</span> <span class="kt">org.apache.spark.rdd.RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">MappedRDD</span><span class="o">[</span><span class="err">5</span><span class="o">]</span> <span class="n">at</span> <span class="n">textFile</span> <span class="n">at</span> <span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">12</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">wiki</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="o">......</span>
+</span><span class='line'><span class="mi">14</span><span class="o">/</span><span class="mi">07</span><span class="o">/</span><span class="mi">17</span> <span class="mi">06</span><span class="k">:</span><span class="err">51</span><span class="kt">:</span><span class="err">28</span> <span class="kt">INFO</span> <span class="kt">scheduler.TaskSchedulerImpl:</span> <span class="kt">Removed</span> <span class="kt">TaskSet</span> <span class="err">1</span><span class="kt">.</span><span class="err">0</span><span class="o">,</span> <span class="n">whose</span> <span class="n">tasks</span> <span class="n">have</span> <span class="n">all</span> <span class="n">completed</span><span class="o">,</span> <span class="n">from</span> <span class="n">pool</span>
+</span><span class='line'><span class="mi">14</span><span class="o">/</span><span class="mi">07</span><span class="o">/</span><span class="mi">17</span> <span class="mi">06</span><span class="k">:</span><span class="err">51</span><span class="kt">:</span><span class="err">28</span> <span class="kt">INFO</span> <span class="kt">spark.SparkContext:</span> <span class="kt">Job</span> <span class="kt">finished:</span> <span class="kt">count</span> <span class="kt">at</span> <span class="kt">&lt;console</span><span class="k">&gt;:</span><span class="err">15</span><span class="o">,</span> <span class="n">took</span> <span class="mf">137.270363856</span> <span class="n">s</span>
+</span><span class='line'><span class="n">res2</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">748891474</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">wiki</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+</span><span class='line'><span class="n">res5</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(&lt;</span><span class="n">mediawiki</span> <span class="n">xmlns</span><span class="o">=</span><span class="s">&quot;http://www.mediawiki.org/xml/export-0.8/&quot;</span> <span class="n">xmlns</span><span class="k">:</span><span class="kt">xsi</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="n">xsi</span><span class="k">:</span><span class="kt">schemaLocation</span><span class="o">=</span><span class="s">&quot;http://www.mediawiki.org/xml/export-0.8/ http://www.mediawiki.org/xml/export-0.8.xsd&quot;</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;0.8&quot;</span> <span class="n">xml</span><span class="k">:</span><span class="kt">lang</span><span class="o">=</span><span class="s">&quot;en&quot;</span><span class="o">&gt;,</span> <span class="s">&quot;  &lt;siteinfo&gt;&quot;</span><span class="o">,</span> <span class="s">&quot;    &lt;sitename&gt;Wikipedia&lt;/sitename&gt;&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[New Post]]></title>
     <link href="http://beginnerlan.github.io/blog/2014/07/16/new-post/"/>
     <updated>2014-07-16T07:59:18-07:00</updated>
     <id>http://beginnerlan.github.io/blog/2014/07/16/new-post</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<p>因为使用代理的关系，我在.ssh/config加了</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后发现不能使用stop-slaves.sh停掉spark的worker节点，ssh xilan@hostname出现</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>ssh_exchange_identification: Connection closed by remote host
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>错误，在stackoverflow上发现<a href="http://stackoverflow.com/questions/10610503/disable-corkscrew-for-local-addresses">这个</a>方案。</p>
+
+<p>给Hadoop集群加一台DataNode： <br/>
+1、将NameNode节点的id_dsa.pub中的内容拷贝到~/.ssh/authorized_keys文件中，让NameNode可以不用密码登陆到该节点  <br/>
+2、编辑$HADOOP_HOME/etc/hadoop/slaves文件，将该节点的hostname添加到末尾 <br/>
+3、更新所有DataNode上的slaves文件（scp） <br/>
+4、scp -r hadoop xilan@newnode:/home/xilan/ 讲Hadoop拷贝到该节点 <br/>
+5、当然在启动之前我还安装好JDK，也把NameNode的.bashrc拷贝过来用  <br/>
+6、sbin/hadoop-daemon.sh start datanode启动DataNode
+7、sbin/yarn-daemon.sh start nodemanager启动NodeManager
+8、再用jps就看到相应的进程已经启动了</p>
+
+<p>Hadoop弄好以后其实Spark也可以类似这样加一个Worker节点（Spark我是自己编译的，太多文件，我可能应该先打个包）。</p>
 ]]></content>
   </entry>
   

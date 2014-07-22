@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>New Post - e^iπ + 1 = 0</title>
+  <title>Oralce NoSQL介绍 - e^iπ + 1 = 0</title>
   <meta name="author" content="Xiaohe Lan">
 
   
-  <meta name="description" content="因为使用代理的关系，我在.ssh/config加了 1
-ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发现不能使用stop-slaves.sh停掉spark的worker节点，ssh xilan@ &hellip;">
+  <meta name="description" content="SQLDev从4.1开始加了几个特性，其中一个就是对Oracle NoSQL的支持，这种事情当然就会交给我去做。估计再过一两个月就开始测了，我需要开始了解Oracle NoSQL。其实，说到NoSQL我首先会想到Redis、MongoDB和HBase那些，Oracle NoSQL之前没听过。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://beginnerlan.github.io/blog/2014/07/16/new-post">
+  <link rel="canonical" href="http://beginnerlan.github.io/blog/2014/07/22/oralce-nosql-intro">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="e^iπ + 1 = 0" type="application/atom+xml">
@@ -70,7 +69,7 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
   
   <header>
     
-      <h1 class="entry-title">New Post</h1>
+      <h1 class="entry-title">Oralce NoSQL介绍</h1>
     
     
       <p class="meta">
@@ -86,40 +85,57 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
   
 
 
-<time datetime="2014-07-16T07:59:18-07:00" pubdate data-updated="true">Jul 16<sup>th</sup>, 2014</time>
+<time datetime="2014-07-22T05:01:57-07:00" pubdate data-updated="true">Jul 22<sup>nd</sup>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>因为使用代理的关系，我在.ssh/config加了</p>
+<div class="entry-content"><p>SQLDev从4.1开始加了几个特性，其中一个就是对Oracle NoSQL的支持，这种事情当然就会交给我去做。估计再过一两个月就开始测了，我需要开始了解Oracle NoSQL。其实，说到NoSQL我首先会想到Redis、MongoDB和HBase那些，Oracle NoSQL之前没听过。</p>
+
+<p>所有的分布式的东西估计都会提到高可靠性、高可用性和可扩展性，Oracle NoSQL当然也不能例外。数据已键值对的形式，通过哈希存储到各个节点（Storage Node），各个节点都会做备份来提供高可用性，默认是3份。这里我从单节点开始。</p>
+
+<p>从官网下载了企业版（kv-ee-3.0.9.tar.gz），直接在/home/xilan/用tar zxvf kv-ee-3.0.9.tar.gz解压得到kv-3.0.9文件夹。进入kv-3.0.9，该目录下有doc、examples、exttab、lib、LICENSE.txt和README.txt，前面四个是文件夹。</p>
+
+<p>为了快速了解，我启动KVLite（Oracle NoSQL的单节点，单shard，单进程store）：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sh'><span class='line'>ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>java -Xmx256m -Xms256m -jar lib/kvstore.jar kvlite
+</span><span class='line'>Created new kvlite store with args:
+</span><span class='line'>-root ./kvroot -store kvstore -host myhost -port 5000 -admin 5001
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>然后发现不能使用stop-slaves.sh停掉spark的worker节点，ssh xilan@hostname出现</p>
+<p>store参数指定store的名字，host指定主机名字（我这里其实是localhost），在当前目录生成kvroot目录（因为第一次启动，以前还没有），用来存放NoSQL数据，默认在5000端口上监听，管理进程在5001端口打开。</p>
+
+<p>还可以ping一下看看kvlite是否已经起来了：</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='sh'><span class='line'>ssh_exchange_identification: Connection closed by remote host
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>java -jar lib/kvstore ping -host localhost -port 5000
+</span><span class='line'>kvstore comprises 10 partitions and 1 Storage Nodes
+</span><span class='line'>Storage Node <span class="o">[</span>sn1<span class="o">]</span> on hostname:5000     Zone: <span class="o">[</span><span class="nv">name</span><span class="o">=</span>KVLite <span class="nv">id</span><span class="o">=</span>zn1 <span class="nb">type</span><span class="o">=</span>PRIMARY<span class="o">]</span>    Status: RUNNING   Ver: 12cR1.3.0.9 2014-05-02 11:52:34 UTC  Build id: c9e715456512
+</span><span class='line'>        Rep Node <span class="o">[</span>rg1-rn1<span class="o">]</span>      Status: RUNNING,MASTER at sequence number: 37 haPort: 5006
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>错误，在stackoverflow上发现<a href="http://stackoverflow.com/questions/10610503/disable-corkscrew-for-local-addresses">这个</a>方案。</p>
+<p>接下来当然是准备HelloWorld了：</p>
 
-<p>给Hadoop集群加一台DataNode： <br/>
-1、将NameNode节点的id_dsa.pub中的内容拷贝到~/.ssh/authorized_keys文件中，让NameNode可以不用密码登陆到该节点  <br/>
-2、编辑$HADOOP_HOME/etc/hadoop/slaves文件，将该节点的hostname添加到末尾 <br/>
-3、更新所有DataNode上的slaves文件（scp） <br/>
-4、scp -r hadoop xilan@newnode:/home/xilan/ 讲Hadoop拷贝到该节点 <br/>
-5、当然在启动之前我还安装好JDK，也把NameNode的.bashrc拷贝过来用  <br/>
-6、sbin/hadoop-daemon.sh start datanode启动DataNode
-7、sbin/yarn-daemon.sh start nodemanager启动NodeManager
-8、再用jps就看到相应的进程已经启动了</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>bash-4.1<span class="nv">$ </span>javac -cp examples:lib/kvclient.jar examples/hello/HelloBigDataWorld.java
+</span><span class='line'>bash-4.1<span class="nv">$ </span>java -cp examples:lib/kvclient.jar hello.HelloBigDataWorld
+</span><span class='line'>Hello Big Data World!
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Hadoop弄好以后其实Spark也可以类似这样加一个Worker节点（Spark我是自己编译的，太多文件，我可能应该先打个包）。</p>
+
+<p>好了，接下来可以开始看看examples下的例子，熟悉一下API，当然，最终还是要跑到几个节点上。</p>
 </div>
 
 
@@ -142,7 +158,7 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
   
 
 
-<time datetime="2014-07-16T07:59:18-07:00" pubdate data-updated="true">Jul 16<sup>th</sup>, 2014</time>
+<time datetime="2014-07-22T05:01:57-07:00" pubdate data-updated="true">Jul 22<sup>nd</sup>, 2014</time>
       
 
 
@@ -150,7 +166,7 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://beginnerlan.github.io/blog/2014/07/16/new-post/" data-via="" data-counturl="http://beginnerlan.github.io/blog/2014/07/16/new-post/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://beginnerlan.github.io/blog/2014/07/22/oralce-nosql-intro/" data-via="" data-counturl="http://beginnerlan.github.io/blog/2014/07/22/oralce-nosql-intro/" >Tweet</a>
   
   
   
@@ -159,8 +175,8 @@ ProxyCommand /home/xilan/corkscrew-2.0/bin/corkscrew myproxy 80 %h %p 然后发�
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2014/07/17/spark-rdd/" title="Previous Post: Spark RDD">&laquo; Spark RDD</a>
       
-        <a class="basic-alignment right" href="/blog/2014/07/17/spark-rdd/" title="Next Post: Spark RDD">Spark RDD &raquo;</a>
       
     </p>
   </footer>
